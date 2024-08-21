@@ -34,6 +34,8 @@ int main(int argc, char* argv[])
             st.put(line, st.get(line).value_or(0) + 1);
     }
 
+    std::string key_floor = st.floor("G");
+
     std::string max = "";
     st.put(max, 0);
     for (auto const& word : st.keys())
