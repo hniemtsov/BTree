@@ -9,16 +9,20 @@ namespace {
 inline auto gnem::SymbolTable::search_loop(std::string key) noexcept -> decltype(auto)
 {
 	auto current_addr = &root; // it is never null because has reserved space in SymbolTable
+	decltype(root) parent = nullptr;
 
-	// *ret_addr can be null for example when the tree is just created and there is no root populated
+	// *current_addr can be null for example when the tree is just created and there is no root populated
 	for(auto current = *current_addr; current != nullptr; current = *current_addr)
 	{
 		auto cmp = current->key.compare(key);
+
 		     if (cmp < 0) current_addr = &(current->right);
 		else if (cmp > 0) current_addr = &(current->left);
 		else break;
+		
+        parent = current;
 	}
-	return current_addr;
+	return std::tuple{ current_addr, parent };
 }
 
 inline void gnem::SymbolTable::search_loop2(std::string key, gnem::SymbolTable::Node** start) noexcept
@@ -37,12 +41,12 @@ inline void gnem::SymbolTable::search_loop2(std::string key, gnem::SymbolTable::
 }
 
 void gnem::SymbolTable::put(std::string key, std::optional<int> value) {
-	auto nodo = search_loop(key);
+	auto [nodo, parent] = search_loop(key);
 
 	if (*nodo == nullptr) {
 		// asign it to tmp to avoid modification of tree in case of memory alocation failure 
 		auto tmp = new Node{ key, value }; // can throw exception
-		//tmp->parent = *nodo;
+		tmp->parent = parent;
 		*nodo = tmp;
 		// go up and increase count by +1 for each passed node until getting the root 
 	}
@@ -50,7 +54,7 @@ void gnem::SymbolTable::put(std::string key, std::optional<int> value) {
 		(*nodo)->val = value;
 }
 std::optional<int> gnem::SymbolTable::get(std::string key) noexcept {
-	auto nodo = search_loop(key);
+	auto [nodo, _] = search_loop(key);
 	if (*nodo == nullptr)
 		return std::optional<int>();// *nodo = new Node{ key, value }; // can throw exception
 	else
