@@ -16,6 +16,7 @@ namespace gnem
 			std::optional<int> val;
 			Node* left = nullptr;
 			Node* right= nullptr;
+			Node* parent;
 			size_t count;
 		};
 		Node* root = nullptr;
@@ -41,7 +42,7 @@ namespace gnem
 
 	private:
 		inline auto search_loop(std::string key) noexcept -> decltype(auto);
-		inline auto search_loop2(std::string key, gnem::SymbolTable::Node* x) noexcept -> decltype(auto);
+		inline void search_loop2(std::string key, gnem::SymbolTable::Node** start) noexcept;
 
 
 		size_t size(Node* x)

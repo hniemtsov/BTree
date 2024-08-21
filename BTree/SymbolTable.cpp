@@ -8,39 +8,44 @@ namespace {
 
 inline auto gnem::SymbolTable::search_loop(std::string key) noexcept -> decltype(auto)
 {
-	auto ret_addr = &root; // it is never null because has reserved space in SymbolTable
+	auto current_addr = &root; // it is never null because has reserved space in SymbolTable
 
 	// *ret_addr can be null for example when the tree is just created and there is no root populated
-	for(auto current = *ret_addr; current != nullptr; current = *ret_addr)
+	for(auto current = *current_addr; current != nullptr; current = *current_addr)
 	{
 		auto cmp = current->key.compare(key);
-		     if (cmp < 0) ret_addr = &(current->right);
-		else if (cmp > 0) ret_addr = &(current->left);
+		     if (cmp < 0) current_addr = &(current->right);
+		else if (cmp > 0) current_addr = &(current->left);
 		else break;
 	}
-	return ret_addr;
+	return current_addr;
 }
 
-inline auto gnem::SymbolTable::search_loop2(std::string key, gnem::SymbolTable::Node* start) noexcept -> decltype(auto)
+inline void gnem::SymbolTable::search_loop2(std::string key, gnem::SymbolTable::Node** start) noexcept
 {
-	auto ret_addr = &start; // it is never null because has reserved space in SymbolTable
+	auto ret_addr = start; // it is never null because has reserved space in SymbolTable
 
 	// *ret_addr can be null for example when the tree is just created and there is no root populated
-	for (auto current = *ret_addr; current != nullptr; current = *ret_addr)
+	for (auto current = *start; current != nullptr; current = *start)
 	{
 		auto cmp = current->key.compare(key);
-		     if (cmp < 0) ret_addr = &(current->left);
-		else if (cmp > 0) ret_addr = &(current->right);
+		     if (cmp < 0) start = &(current->right);
+		else if (cmp > 0) start = &(current->right);
 		else break;
 	}
-	return ret_addr;
+	return;
 }
 
 void gnem::SymbolTable::put(std::string key, std::optional<int> value) {
 	auto nodo = search_loop(key);
 
-	if (*nodo == nullptr)
-		*nodo = new Node{ key, value }; // can throw exception
+	if (*nodo == nullptr) {
+		// asign it to tmp to avoid modification of tree in case of memory alocation failure 
+		auto tmp = new Node{ key, value }; // can throw exception
+		//tmp->parent = *nodo;
+		*nodo = tmp;
+		// go up and increase count by +1 for each passed node until getting the root 
+	}
 	else
 		(*nodo)->val = value;
 }
