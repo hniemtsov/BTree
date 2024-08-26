@@ -14,30 +14,15 @@ inline auto gnem::SymbolTable::search_loop(std::string key) noexcept -> decltype
 	// *current_addr can be null for example when the tree is just created and there is no root populated
 	for(auto current = *current_addr; current != nullptr; current = *current_addr)
 	{
-		auto cmp = current->key.compare(key);
+		auto cmp = key.compare(current->key);
 
-		     if (cmp < 0) current_addr = &(current->right);
-		else if (cmp > 0) current_addr = &(current->left);
-		else break;
+		     if (cmp < 0) current_addr = &(current->left); // key < current
+		else if (cmp > 0) current_addr = &(current->right);// key > current
+		else break;                                        // key== current
 		
         parent = current;
 	}
 	return std::tuple{ current_addr, parent };
-}
-
-inline void gnem::SymbolTable::search_loop2(std::string key, gnem::SymbolTable::Node** start) noexcept
-{
-	auto ret_addr = start; // it is never null because has reserved space in SymbolTable
-
-	// *ret_addr can be null for example when the tree is just created and there is no root populated
-	for (auto current = *start; current != nullptr; current = *start)
-	{
-		auto cmp = current->key.compare(key);
-		     if (cmp < 0) start = &(current->right);
-		else if (cmp > 0) start = &(current->right);
-		else break;
-	}
-	return;
 }
 
 void gnem::SymbolTable::put(std::string key, std::optional<int> value) {
@@ -49,6 +34,8 @@ void gnem::SymbolTable::put(std::string key, std::optional<int> value) {
 		tmp->parent = parent;
 		*nodo = tmp;
 		// go up and increase count by +1 for each passed node until getting the root 
+		for (; tmp != nullptr; tmp = tmp->parent)
+			tmp->count++;
 	}
 	else
 		(*nodo)->val = value;
@@ -61,35 +48,31 @@ std::optional<int> gnem::SymbolTable::get(std::string key) noexcept {
 		return (*nodo)->val;
 }
 
-
-std::string gnem::SymbolTable::floor(std::string key) {
-	Node* current = root;
-
-	Node* max_less_than_key = nullptr;
+/// <summary>Maximum less then key from parameter. For example floor("G")</summary>
+/// <param name="key">key to compare with. For example "G"</param>
+/// <returns>
+/// 1) 'key' passed in argument if Node with such key is found in tree. For example: G if G is present in tree.
+/// 2) empty string if there is no Node with key less than passed in arguments. 
+/// 3) maximum which is less than 'key' 
+/// </returns>
+std::string gnem::SymbolTable::floor(std::string key) noexcept {
+	auto current = root;
+	decltype(current) max_less_than_key = nullptr;
 
 	while (current != nullptr)
 	{
 		auto cmp = key.compare(current->key);
-		if (cmp == 0) {
-			return current->key; // max = current
-		}
-		if (cmp < 0) { // key < current
-			current = current->left;
-			continue;
-		}
-		if (max_less_than_key)
-		{
-			if (max_less_than_key->key.compare(current->key) < 0) // curent < key && current > max
-				max_less_than_key = current; // may be it is if on the right subtree there is no key less than G and greater than max_less_than_key
-		}
-		else
+			
+		     if (cmp < 0) current = current->left; // key < current
+		else if (cmp > 0)                          // key > current
 		{
 			max_less_than_key = current;
+			current = current->right; // we are going to the right so there are if so greatest keys than current saved into max_less_than_key
 		}
-		current = current->right;
+		else return current->key; // 1) max = current
 	}
-	if (max_less_than_key) return max_less_than_key->key;
-	return "";
+	if (max_less_than_key) return max_less_than_key->key; // 3) found maximum less than 'key'
+	return ""; // 2) no nodes with key less than 'key'
 
 }
 

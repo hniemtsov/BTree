@@ -16,20 +16,17 @@ namespace gnem
 			std::optional<int> val;
 			Node* left = nullptr;
 			Node* right= nullptr;
-			Node* parent;
-			size_t count;
+			Node* parent = nullptr;
+			size_t count = 0;
 		};
 		Node* root = nullptr;
 	public:
-
-		
 
 		//SymbolTable(); // ctor Do I need?
 		void put(std::string key, std::optional<int> value); // overwrites old value with new value - Are you ok with that
 		std::optional<int>  get(std::string key) noexcept; 
 
-		std::string floor(std::string key);
-
+		std::string floor(std::string key) noexcept;
 
 		bool contains(std::string key);
 		void remove(std::string key);
@@ -42,8 +39,6 @@ namespace gnem
 
 	private:
 		inline auto search_loop(std::string key) noexcept -> decltype(auto);
-		inline void search_loop2(std::string key, gnem::SymbolTable::Node** start) noexcept;
-
 
 		size_t size(Node* x)
 		{
