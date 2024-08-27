@@ -73,7 +73,37 @@ std::string gnem::SymbolTable::floor(std::string key) noexcept {
 	}
 	if (max_less_than_key) return max_less_than_key->key; // 3) found maximum less than 'key'
 	return ""; // 2) no nodes with key less than 'key'
+}
 
+/// <summary>
+/// Count number of keys less than given 'key' in argument
+/// </summary>
+/// <param name="key">given key to found how many are there keys less than that</param>
+/// <returns>size_t : number keys less than given in argument</returns>
+size_t gnem::SymbolTable::rank(std::string key) noexcept {
+	size_t ret = 0;
+
+	auto current = root;
+	decltype(current) max_less_than_key = nullptr;
+
+	while (current != nullptr)
+	{
+		auto cmp = key.compare(current->key);
+
+		if (cmp < 0) current = current->left;// key < current
+		else                                 // key >= current
+		{
+			ret += size(current->left);
+
+			if (cmp > 0)                     // key > current
+			{
+				ret += 1;
+				current = current->right; // we are going to the right because given key is greater than current
+			}
+			else break;      // key== current
+		}
+	}
+	return ret; 
 }
 
 bool gnem::SymbolTable::contains(std::string key) {

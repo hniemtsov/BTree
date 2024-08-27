@@ -27,6 +27,7 @@ namespace gnem
 		std::optional<int>  get(std::string key) noexcept; 
 
 		std::string floor(std::string key) noexcept;
+		size_t rank(std::string key) noexcept;
 
 		bool contains(std::string key);
 		void remove(std::string key);
