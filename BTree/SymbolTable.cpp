@@ -30,11 +30,11 @@ void gnem::SymbolTable::put(std::string key, std::optional<int> value) {
 
 	if (*nodo == nullptr) {
 		// asign it to tmp to avoid modification of tree in case of memory alocation failure 
-		auto tmp = new Node{ key, value }; // can throw exception
+		auto tmp = std::make_shared<Node>(key, value); // can throw exception
 		tmp->parent = parent;
 		*nodo = tmp;
 		// go up and increase count by +1 for each passed node until getting the root 
-		for (; tmp != nullptr; tmp = tmp->parent)
+		for (; tmp != nullptr; tmp = tmp->parent.lock())
 			tmp->count++;
 	}
 	else
@@ -93,7 +93,7 @@ size_t gnem::SymbolTable::rank(std::string key) noexcept {
 		if (cmp < 0) current = current->left;// key < current
 		else                                 // key >= current
 		{
-			ret += size(current->left);
+			ret += size(current->left.get());
 
 			if (cmp > 0)                     // key > current
 			{

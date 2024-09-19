@@ -2,6 +2,7 @@
 #include <optional>
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace gnem
 {
@@ -14,12 +15,12 @@ namespace gnem
 		struct Node {
 			std::string key;
 			std::optional<int> val;
-			Node* left = nullptr;
-			Node* right= nullptr;
-			Node* parent = nullptr;
+			std::shared_ptr<Node> left = nullptr;
+			std::shared_ptr<Node> right= nullptr;
+			std::weak_ptr<Node> parent;
 			size_t count = 0;
 		};
-		Node* root = nullptr;
+		std::shared_ptr<Node> root = nullptr;
 	public:
 
 		//SymbolTable(); // ctor Do I need?
@@ -35,7 +36,7 @@ namespace gnem
 		const std::vector<std::string>& keys() const;
 
 		size_t size() {
-			return size(root);
+			return size(root.get());
 		}
 
 	private:
