@@ -13,6 +13,7 @@ namespace gnem
 	class SymbolTable
 	{ 
 		struct Node {
+			int test; //todo: remove
 			std::string key;
 			std::optional<int> val;
 			std::shared_ptr<Node> left = nullptr;
